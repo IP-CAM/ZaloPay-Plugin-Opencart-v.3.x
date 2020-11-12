@@ -1,4 +1,4 @@
-# ZaloPay OpenCart plugin
+# OpenCart ZaloPay Plugin
 
 ## Prequisties
 
