@@ -9,7 +9,7 @@
 
 ## Setup
 - Copy all folder to your OpenCart installation
-- Go to Extensions -> Exntensions -> select Payment -> Install ZaloPay -> Config ZaloPay ( config app_id key1 key2 )
+- Go to Extensions -> Exntensions -> select Payment -> Install ZaloPay -> Config ZaloPay ( enable this extension and config app_id, key1, key2 )
 - Your `redirect_url` `http://<your_domain>/index.php?route=extension/payment/zalopay/redirect`
 - Your `callback_url` `http://<your_domain>/index.php?route=extension/payment/zalopay/callback`
 - Create a schedule job using command "wget -t 1 - "http://<your_domain>/index.php?route=extension/payment/zalopay/cron" -O - | xargs echo >> /var/log/cron.log"
