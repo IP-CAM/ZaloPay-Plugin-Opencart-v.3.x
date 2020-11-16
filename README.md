@@ -6,10 +6,16 @@
 - Web Server (Apache suggested)
 - PHP 5.4+
 - Database (MySQLi suggested)
+- Please read this docs for imformation : https://docs.zalopay.vn/v2/docs/gateway/guide.html#1-chon-hinh-thuc-thanh-toan
+
 
 ## Setup
-- Copy all folder to your OpenCart installation
-- Go to Extensions -> Exntensions -> select Payment -> Install ZaloPay -> Config ZaloPay ( enable this extension and config app_id, key1, key2 )
+- Copy folder system to your OpenCart installation dir
+- Every payment method is individual extension:
+  - ZaloPay wallet --> copy all subfolder in `wallet` to your OpenCart installation dir
+  - Visa/Master/JCB --> copy all subfolder in `cc` to your OpenCart installation dir
+  - ATM --> copy all subfolder in `atm` to your OpenCart installation dir
+- Go to Extensions -> Exntensions -> select ZaloPay Payment Method extension -> Install -> Config ZaloPay ( enable this extension and config app_id, key1, key2 )
 - Your `redirect_url` `http://<your_domain>/index.php?route=extension/payment/zalopay/redirect`
 - Your `callback_url` `http://<your_domain>/index.php?route=extension/payment/zalopay/callback`
 - Create a schedule job using command "wget -t 1 - "http://<your_domain>/index.php?route=extension/payment/zalopay/cron" -O - | xargs echo >> /var/log/cron.log"

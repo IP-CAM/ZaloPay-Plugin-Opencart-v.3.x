@@ -1,0 +1,34 @@
+
+{% if return_code %}
+<script type="text/javascript">
+  function pay(event){
+    $.ajax({
+      url: 'index.php?route=extension/payment/zalopay_cc/confirm',
+      dataType: 'json',
+      beforeSend: function() {
+        $('#zalopay_cc-btn').button('loading');
+      },
+      complete: function() {
+        $('#zalopay_cc-btn').button('reset');
+      },
+      success: function(result) {
+        if (result['return_code'] == 1) {	
+          window.open("{{order_url}}", "_self");
+        }
+      },
+      error: function(xhr, ajaxOptions, thrownError) {
+        alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+      }
+    });
+  }
+</script>
+<div class="buttons">
+  <div class="pull-right">
+    <input id="zalopay_cc-btn" type="submit" onclick="pay(this);" value="Pay" class="btn btn-primary" />
+  </div>
+</div>
+
+{% else %}
+<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create zalopay_cc Order. {{ return_message }}</div>
+
+{% endif %}
