@@ -18,8 +18,9 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
             $data = [
                 'app_user' => $order['telephone'],
                 'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false),
-                'embed_data' => array('order_id' => $orderId, 'redirecturl' => 'http://localhost:8124/index.php?route=extension/payment/zalopay_cc/redirect'),
-                'bank_code' => "CC"
+                'embed_data' => array('order_id' => $orderId, 'redirecturl' => $this->url->link('extension/payment/zalopay_cc/redirect')),
+                'bank_code' => "CC",
+                'callback_url' => $this->url->link('extension/payment/zalopay_cc/callback')
             ];
 
             $order_data = $api->helper->generateOrderData($data);

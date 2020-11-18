@@ -18,11 +18,13 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
             $data = [
                 'app_user' => $order['telephone'],
                 'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false),
-                'embed_data' => array('order_id' => $orderId, 'bankgroup' => 'ATM', 'redirecturl' => 'http://localhost:8124/index.php?route=extension/payment/zalopay_atm/redirect'),
-                'bank_code' => ''
+                'embed_data' => array('order_id' => $orderId, "bankgroup" => "ATM", 'redirecturl' => $this->url->link('extension/payment/zalopay_atm/redirect')),
+                'bank_code' => "",
+                'callback_url' => $this->url->link('extension/payment/zalopay_atm/callback')
             ];
 
             $order_data = $api->helper->generateOrderData($data);
+            print_r($order_data);
 
             // Store app_trans_id to db
             $this->model_extension_payment_zalopay_atm->updateOrderCustomField($orderId, $order_data['app_trans_id']);

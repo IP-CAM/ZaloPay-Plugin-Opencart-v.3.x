@@ -88,6 +88,7 @@ class Helper
 			"bank_code" =>  array_key_exists("bank_code", $params) ? $params["bank_code"] : "zalopayapp",
 			"description" => array_key_exists("description", $params) ? $params['description'] : "[OpenCart Demo Shop] - Thanh toán đơn hàng #" . $appTransID,
 			"amount" => $params['amount'],
+			"callback_url" => array_key_exists("callback_url", $params) ? $params["callback_url"] : "",
 		];
 
 		return $orderData;
