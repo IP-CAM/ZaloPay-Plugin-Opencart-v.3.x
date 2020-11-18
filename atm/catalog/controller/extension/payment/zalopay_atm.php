@@ -24,8 +24,6 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
             ];
 
             $order_data = $api->helper->generateOrderData($data);
-            print_r($order_data);
-
             // Store app_trans_id to db
             $this->model_extension_payment_zalopay_atm->updateOrderCustomField($orderId, $order_data['app_trans_id']);
 

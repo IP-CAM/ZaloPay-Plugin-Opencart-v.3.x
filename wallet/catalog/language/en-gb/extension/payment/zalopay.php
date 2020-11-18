@@ -1,7 +1,7 @@
 <?php
 
 // Text
-$_['text_title'] = ' <img height="18px" src="https://stccbo.zalopay.vn/zalopay-public/websites/ver201022/images/logozlp1.png" alt="zalopay" title="zalopay" style="margin-bottom:5px"/>Wallet';
+$_['text_title'] = '<img height="15px" src="https://stccbo.zalopay.vn/zalopay-public/websites/ver201022/images/logozlp1.png" alt="zalopay" title="zalopay" style="margin-bottom:5px"/>Wallet';
 $_['text_wait']					= 'Validating your credit card...';
 $_['text_credit_card']			= 'Credit Card Details';
 
