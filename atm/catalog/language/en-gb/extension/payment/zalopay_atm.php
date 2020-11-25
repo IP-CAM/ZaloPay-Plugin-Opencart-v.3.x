@@ -1,7 +1,7 @@
 <?php
 
 // Text
-$_['text_title'] = 'ATM (ZaloPay Gateway)';
+$_['text_title'] = 'Thanh toán ATM (qua Cổng ZaloPay)';
 $_['text_wait']					= 'Validating your credit card...';
 $_['text_credit_card']			= 'Credit Card Details';
 
