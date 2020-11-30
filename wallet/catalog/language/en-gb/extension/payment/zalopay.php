@@ -1,4 +1,4 @@
 <?php
 
 // Text
-$_['text_title'] = 'ZaloPay Wallet';
+$_['text_title'] = 'Ví ZaloPay';

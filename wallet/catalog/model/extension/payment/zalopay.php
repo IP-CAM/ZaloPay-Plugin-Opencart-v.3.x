@@ -17,11 +17,11 @@ class ModelExtensionPaymentZalopay extends Model
     }
 
     public function updateOrderCustomField($order_id, $custom_field){
-		$this->db->query("UPDATE `" . DB_PREFIX . "order` SET custom_field = '" . $custom_field . "' WHERE order_id = '" . (int)$order_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "order` SET payment_custom_field = '" . $custom_field . "' WHERE order_id = '" . (int)$order_id . "'");
     }
 
     public function getOrderByCustomField($customField){
-        $order_query = $this->db->query("SELECT *, (SELECT os.name FROM `" . DB_PREFIX . "order_status` os WHERE os.order_status_id = o.order_status_id AND os.language_id = o.language_id) AS order_status FROM `" . DB_PREFIX . "order` o WHERE o.custom_field = \"" . $customField . "\"");
+        $order_query = $this->db->query("SELECT *, (SELECT os.name FROM `" . DB_PREFIX . "order_status` os WHERE os.order_status_id = o.order_status_id AND os.language_id = o.language_id) AS order_status FROM `" . DB_PREFIX . "order` o WHERE o.payment_custom_field = \"" . $customField . "\"");
 
         return $order_query->row;
     }

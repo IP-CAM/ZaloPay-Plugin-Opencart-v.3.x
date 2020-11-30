@@ -67,6 +67,12 @@ class ControllerExtensionPaymentZalopay extends Controller
             $data['error_key2'] = '';
         }
 
+        if (isset($this->error['payment_zalopay_description'])) {
+            $data['error_description'] = $this->error['payment_zalopay_description'];
+        } else {
+            $data['error_description'] = '';
+        }
+
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
@@ -133,8 +139,12 @@ class ControllerExtensionPaymentZalopay extends Controller
             $data['zalopay_redirect_url'] = $this->config->get('payment_zalopay_redirect_url');
         }
         
+        if (isset($this->request->post['payment_zalopay_description'])) {
+            $data['zalopay_description'] = $this->request->post['payment_zalopay_description'];
+        } else {
+            $data['zalopay_description'] = $this->config->get('payment_zalopay_description');
+        }
         // $data['callback_url'] = HTTPS_CATALOG . 'index.php?route=extension/payment/zalopay/webhook';
-
 
         $this->template = 'extension/payment/zalopay';
         $this->children = array(
@@ -161,10 +171,13 @@ class ControllerExtensionPaymentZalopay extends Controller
         if (!$this->request->post['payment_zalopay_key1']) {
             $this->error['payment_zalopay_key1'] = $this->language->get('error_key1');
 		}
-		
 
         if (!$this->request->post['payment_zalopay_key2']) {
             $this->error['payment_zalopay_key2'] = $this->language->get('error_key2');
+		}
+		
+        if (!$this->request->post['payment_zalopay_description']) {
+            $this->error['payment_zalopay_description'] = $this->language->get('error_description');
 		}
 		
         if (!$this->error) {

@@ -67,6 +67,13 @@ class ControllerExtensionPaymentZalopayAtm extends Controller
             $data['error_key2'] = '';
         }
 
+        if (isset($this->error['payment_zalopay_atm_description'])) {
+            $data['error_description'] = $this->error['payment_zalopay_atm_description'];
+        } else {
+            $data['error_description'] = '';
+        }
+        
+
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
@@ -133,6 +140,12 @@ class ControllerExtensionPaymentZalopayAtm extends Controller
             $data['zalopay_atm_redirect_url'] = $this->config->get('payment_zalopay_atm_redirect_url');
         }
         
+        if (isset($this->request->post['payment_zalopay_atm_description'])) {
+            $data['zalopay_description'] = $this->request->post['payment_zalopay_atm_description'];
+        } else {
+            $data['zalopay_description'] = $this->config->get('payment_zalopay_atm_description');
+        }
+        
         // $data['callback_url'] = HTTPS_CATALOG . 'index.php?route=extension/payment/zalopay_atm/webhook';
 
 
@@ -161,10 +174,13 @@ class ControllerExtensionPaymentZalopayAtm extends Controller
         if (!$this->request->post['payment_zalopay_atm_key1']) {
             $this->error['payment_zalopay_atm_key1'] = $this->language->get('error_key1');
 		}
-		
 
         if (!$this->request->post['payment_zalopay_atm_key2']) {
             $this->error['payment_zalopay_atm_key2'] = $this->language->get('error_key2');
+        }
+        
+        if (!$this->request->post['payment_zalopay_atm_description']) {
+            $this->error['payment_zalopay_atm_description'] = $this->language->get('error_description');
 		}
 		
         if (!$this->error) {

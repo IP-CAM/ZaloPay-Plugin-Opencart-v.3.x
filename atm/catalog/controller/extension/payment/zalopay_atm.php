@@ -20,6 +20,7 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
                 'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false),
                 'embed_data' => array('order_id' => $orderId, "bankgroup" => "ATM", 'redirecturl' => $this->url->link('extension/payment/zalopay_atm/redirect')),
                 'bank_code' => "",
+                'description' => $this->config->get('payment_zalopay_atm_description'),
                 'callback_url' => $this->url->link('extension/payment/zalopay_atm/callback')
             ];
 
@@ -85,16 +86,23 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
         $this->load->model('checkout/order');
         $this->load->model('extension/payment/zalopay_atm');
         $api = $this->getApiIntance();
-
-        $requestData = json_decode(file_get_contents('php://input'), true);
-        $response = $api->helper->verifyCallback($requestData);
-        if($response["return_code"]){
-            $order = $this->model_extension_payment_zalopay_atm->getOrderByCustomField($requestData['apptransid']);
-            $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+        try{
+            $requestData = json_decode(file_get_contents('php://input'), true);
+            $response = $api->helper->verifyCallback($requestData);
+            if($response["return_code"]){
+                $_data = json_decode($requestData["data"], true);
+                $order = $this->model_extension_payment_zalopay->getOrderByCustomField($_data['app_trans_id']);
+                $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+            }
+            
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($response));
         }
-        
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($response));
+        catch (Exception $e) {
+            $response = array("return_code" => 2, "return_message" => $e->getMessage());
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($response));
+        }
         
     }
 
@@ -148,6 +156,6 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
 
     protected function getApiIntance()
     {
-        return new Zalopay\Sdk\Api($this->config->get("payment_zalopay_atm_app_id"), $this->config->get('payment_zalopay_atm_key1'), $this->config->get('payment_zalopay_atm_key2'));
+        return new Zalopay\Sdk\Api($this->config->get("payment_zalopay_atm_app_id"), $this->config->get('payment_zalopay_atm_key1'), $this->config->get('payment_zalopay_atm_key2', $this->config->get('payment_zalopay_atm_environment')));
     }
 }

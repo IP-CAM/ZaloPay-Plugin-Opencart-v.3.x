@@ -12,6 +12,7 @@ $_['text_edit'] = 'Edit Zalopay';
 $_['text_success'] = 'Success: You have modified Zalopay account details!';
 $_['text_zalopay_cc'] = '<img width="109" src="view/image/payment/zalopay.png" alt="Zalopay" title="ZaloPay" style="border: 1px solid #EEEEEE;" />';
 $_['text_authorize'] = 'Authorize Only';
+$_['text_description'] = 'Description:';
 $_['text_capture'] = 'Authorize and Capture';
 
 // Entry
@@ -22,6 +23,7 @@ $_['entry_app_id'] = 'App ID';
 $_['entry_callback_url'] = 'Callback URL:';
 $_['entry_redirect_url'] = 'Redirect URL:';
 $_['entry_environment'] = 'Environment:';
+$_['entry_description'] = '[ Your store name ] - Thanh toán đơn hàng #';
 
 //tooltips
 $_['help_key1'] = 'The Mac Key you will recieve from the ZaloPay merchant tool at URL: https://sbmc.zalopay.vn/ ( sandbox ) and https://mc.zalopay.vn/ ( production ) . Use test Key for testing purposes.';
@@ -34,3 +36,4 @@ $_['error_permission'] = 'Warning: You do not have permission to modify payment 
 $_['error_key1'] = 'Mac Key Required!';
 $_['error_key2'] = 'Callback Key Required!';
 $_['error_app_id'] = 'App ID Required!';
+$_['error_description'] = 'Description is required!';

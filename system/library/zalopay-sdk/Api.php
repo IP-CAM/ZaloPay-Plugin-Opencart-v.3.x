@@ -8,9 +8,8 @@ class Api {
     {
         Config::setConfig("app_id", $appId);
         Config::setConfig("key1", $key1);
-        Config::setConfig("key2", $key2);
+        Config::setConfig("key2", $key2);   
         Config::setConfig("env", $env);
-
     }
     /**
      * @param string $name
