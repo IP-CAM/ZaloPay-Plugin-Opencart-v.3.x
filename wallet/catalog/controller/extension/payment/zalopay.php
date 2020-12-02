@@ -90,7 +90,13 @@ class ControllerExtensionPaymentZalopay extends Controller {
             if($response["return_code"]){
                 $_data = json_decode($requestData["data"], true);
                 $order = $this->model_extension_payment_zalopay->getOrderByCustomField($_data['app_trans_id']);
-                $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+                if( isset($order['order_id'])){
+                    $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+                }
+                else{
+                    $error = 'Order not found!';
+                    throw new Exception($error);
+                }
             }
             
             $this->response->addHeader('Content-Type: application/json');
@@ -118,13 +124,17 @@ class ControllerExtensionPaymentZalopay extends Controller {
                 if ($isValid){
                     $queryRes = $api->helper->getOrderStatus($requestData['apptransid']);
                     if($queryRes['return_code'] == 1){
-                        $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
-                        $this->response->redirect($this->url->link('checkout/success', '', true));
+                        if( isset($order['order_id'])){
+                            $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+                            $this->response->redirect($this->url->link('checkout/success', '', true));
+                        }
+                        else{
+                            $error = 'Order not found!';
+                            throw new Exception($error);
+                        }
                     }
                 }
             }
-            $this->model_checkout_order->addOrderHistory($order['order_id'], 10);
-            $this->response->redirect($this->url->link('checkout/failure', '', true));
         }
         catch(Exception $e) {
             $this->response->redirect($this->url->link('checkout/failure', '', true));
@@ -138,14 +148,33 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $response = Array("return_code" => 1, "return_message" => "ok");
         
         $pendingOrderList = $this->model_extension_payment_zalopay->getPendingOrderList();
-        foreach ( $pendingOrderList as $pendingOrder ) {
-            $queryRes = $api->helper->getOrderStatus($pendingOrder['custom_field']);
-            if($queryRes['return_code'] == 1){
-                $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 5);
+        try{
+
+            foreach ( $pendingOrderList as $pendingOrder ) {
+                $queryRes = $api->helper->getOrderStatus($pendingOrder['custom_field']);
+                if($queryRes['return_code'] == 1){
+                    if( isset($order['order_id'])){
+                        $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 5);
+                    }
+                    else{
+                        $error = 'Order not found!';
+                        throw new Exception($error);
+                    }
+                }
+                if($queryRes['return_code'] == 2){
+                    if( isset($order['order_id'])){
+                        $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 10);
+                    }
+                    else{
+                        $error = 'Order not found!';
+                        throw new Exception($error);
+                    }
+                }
             }
-            if($queryRes['return_code'] == 2){
-                $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 10);
-            }
+        }
+        catch (Exception $e){
+            $response["return_code"] = 2;
+            $response["return_message"] = $e->getMessage();
         }
         $response['total_order'] = count($pendingOrderList);
 		$this->response->addHeader('Content-Type: application/json');
