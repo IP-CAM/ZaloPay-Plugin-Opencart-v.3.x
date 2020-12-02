@@ -21,13 +21,13 @@ class ModelExtensionPaymentZalopay extends Model
     }
 
     public function getOrderByCustomField($customField){
-        $order_query = $this->db->query("SELECT *, (SELECT os.name FROM `" . DB_PREFIX . "order_status` os WHERE os.order_status_id = o.order_status_id AND os.language_id = o.language_id) AS order_status FROM `" . DB_PREFIX . "order` o WHERE o.payment_custom_field = \"" . $customField . "\"");
+        $order_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order` o WHERE o.payment_custom_field = \"" . $customField . "\"");
 
         return $order_query->row;
     }
 
     public function getPendingOrderList(){
-        $order_query = $this->db->query("SELECT *, (SELECT os.name FROM `" . DB_PREFIX . "order_status` os WHERE os.order_status_id = o.order_status_id AND os.language_id = o.language_id) AS order_status FROM `" . DB_PREFIX . "order` o WHERE o.date_added >= NOW() - INTERVAL 15 MINUTE AND o.order_status_id = 1");
+        $order_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "order` o WHERE o.date_added >= NOW() - INTERVAL 15 MINUTE AND o.order_status_id = 1");
 
         return $order_query->rows;
     }
