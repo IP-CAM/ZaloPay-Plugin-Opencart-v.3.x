@@ -5,9 +5,7 @@ require_once __DIR__.'/../../../../system/library/zalopay-sdk/Zalopay.php';
 class ControllerExtensionPaymentZalopay extends Controller {
 	
 	public function index() {
-
         $data['button_confirm'] = $this->language->get('button_confirm');
-        
         $this->load->model('checkout/order');
 		$this->load->model('extension/payment/zalopay');
         try
