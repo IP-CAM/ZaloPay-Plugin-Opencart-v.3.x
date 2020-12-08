@@ -92,7 +92,7 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
             $response = $api->helper->verifyCallback($requestData);
             if($response["return_code"]){
                 $_data = json_decode($requestData["data"], true);
-                $order = $this->model_extension_payment_zalopay->getOrderByCustomField($_data['app_trans_id']);
+                $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($_data['app_trans_id'])));
                 $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
             }
             
@@ -114,7 +114,7 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
         $api = $this->getApiIntance();
         try{
             $requestData = $this->request->request;
-            $order = $this->model_extension_payment_zalopay_cc->getOrderByCustomField($requestData['apptransid']);
+            $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($requestData['apptransid'])));
             if(isset($requestData["status"]) && $requestData["status"] == 1){
                 // Checksum
                 $isValid = $api->helper->verifyRedirect($requestData);

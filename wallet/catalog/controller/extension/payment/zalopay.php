@@ -22,7 +22,9 @@ class ControllerExtensionPaymentZalopay extends Controller {
             $order_data = $api->helper->generateOrderData($data);
 
             // Store app_trans_id to db
-            $this->model_extension_payment_zalopay->updateOrderCustomField($orderId, $order_data['app_trans_id']);
+            $order["payment_custom_field"] = array($order_data["app_trans_id"]);
+            $this->model_checkout_order->editOrder($orderId, $order);
+            // $this->model_extension_payment_zalopay->updateOrderCustomField($orderId, $order_data['app_trans_id']);
 
             $zalopay_order = $api->helper->createOrder($order_data);
             
@@ -87,7 +89,7 @@ class ControllerExtensionPaymentZalopay extends Controller {
             $response = $api->helper->verifyCallback($requestData);
             if($response["return_code"]){
                 $_data = json_decode($requestData["data"], true);
-                $order = $this->model_extension_payment_zalopay->getOrderByCustomField($_data['app_trans_id']);
+                $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($_data['app_trans_id'])));
                 if( isset($order['order_id'])){
                     $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
                 }
@@ -115,7 +117,7 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $api = $this->getApiIntance();
         try{
             $requestData = $this->request->request;
-            $order = $this->model_extension_payment_zalopay->getOrderByCustomField($requestData['apptransid']);
+            $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($requestData['apptransid'])));
             if(isset($requestData["status"]) && $requestData["status"] == 1){
                 // Checksum
                 $isValid = $api->helper->verifyRedirect($requestData);
@@ -146,6 +148,7 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $response = Array("return_code" => 1, "return_message" => "ok");
         
         $pendingOrderList = $this->model_extension_payment_zalopay->getPendingOrderList();
+        print_r($pendingOrderList);die();
         try{
 
             foreach ( $pendingOrderList as $pendingOrder ) {
