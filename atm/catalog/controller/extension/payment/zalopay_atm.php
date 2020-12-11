@@ -106,7 +106,6 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
         
     }
 
-
     public function redirect() {
         $this->load->model('checkout/order');
 		$this->load->model('extension/payment/zalopay_atm');

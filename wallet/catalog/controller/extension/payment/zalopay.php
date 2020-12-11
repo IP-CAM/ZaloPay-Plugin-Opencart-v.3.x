@@ -117,8 +117,8 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $api = $this->getApiIntance();
         try{
             $requestData = $this->request->request;
-            $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($requestData['apptransid'])));
             if(isset($requestData["status"]) && $requestData["status"] == 1){
+                $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($requestData['apptransid'])));
                 // Checksum
                 $isValid = $api->helper->verifyRedirect($requestData);
                 if ($isValid){
@@ -135,6 +135,7 @@ class ControllerExtensionPaymentZalopay extends Controller {
                     }
                 }
             }
+            $this->response->redirect($this->url->link('checkout/failure', '', true));
         }
         catch(Exception $e) {
             $this->response->redirect($this->url->link('checkout/failure', '', true));
@@ -150,7 +151,6 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $pendingOrderList = $this->model_extension_payment_zalopay->getPendingOrderList();
         print_r($pendingOrderList);die();
         try{
-
             foreach ( $pendingOrderList as $pendingOrder ) {
                 $queryRes = $api->helper->getOrderStatus($pendingOrder['custom_field']);
                 if($queryRes['return_code'] == 1){
