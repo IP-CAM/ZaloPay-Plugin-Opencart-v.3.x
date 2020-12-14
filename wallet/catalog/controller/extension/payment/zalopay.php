@@ -23,8 +23,8 @@ class ControllerExtensionPaymentZalopay extends Controller {
 
             // Store app_trans_id to db
             $order["payment_custom_field"] = array($order_data["app_trans_id"]);
-            $this->model_checkout_order->editOrder($orderId, $order);
-            // $this->model_extension_payment_zalopay->updateOrderCustomField($orderId, $order_data['app_trans_id']);
+            $this->session->data['payment_address']['custom_field'] = array($order_data["app_trans_id"]);
+            $this->model_extension_payment_zalopay->updateOrderCustomField($orderId, $order_data['app_trans_id']);
 
             $zalopay_order = $api->helper->createOrder($order_data);
             
@@ -110,7 +110,6 @@ class ControllerExtensionPaymentZalopay extends Controller {
         
     }
 
-
     public function redirect() {
         $this->load->model('checkout/order');
 		$this->load->model('extension/payment/zalopay');
@@ -149,7 +148,6 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $response = Array("return_code" => 1, "return_message" => "ok");
         
         $pendingOrderList = $this->model_extension_payment_zalopay->getPendingOrderList();
-        print_r($pendingOrderList);die();
         try{
             foreach ( $pendingOrderList as $pendingOrder ) {
                 $queryRes = $api->helper->getOrderStatus($pendingOrder['custom_field']);
