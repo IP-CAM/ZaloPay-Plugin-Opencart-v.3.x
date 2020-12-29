@@ -11,6 +11,7 @@ class ControllerExtensionPaymentZalopay extends Controller
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('setting/setting');
+        $this->load->model('extension/payment/zalopay');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
             $this->model_setting_setting->editSetting('payment_zalopay', $this->request->post);
@@ -186,4 +187,14 @@ class ControllerExtensionPaymentZalopay extends Controller
             return false;
         }
     }
+
+	public function install() {
+        $this->load->model('extension/payment/zalopay');
+		$this->model_extension_payment_zalopay->install();
+	}
+
+	public function uninstall() {
+        $this->load->model('extension/payment/zalopay');
+		$this->model_extension_payment_zalopay->uninstall();
+	}
 }

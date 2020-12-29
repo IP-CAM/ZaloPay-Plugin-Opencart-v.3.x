@@ -188,4 +188,14 @@ class ControllerExtensionPaymentzalopayCc extends Controller
             return false;
         }
     }
+
+	public function install() {
+        $this->load->model('extension/payment/zalopay_cc');
+		$this->model_extension_payment_zalopay_cc->install();
+	}
+
+	public function uninstall() {
+        $this->load->model('extension/payment/zalopay_cc');
+		$this->model_extension_payment_zalopay_cc->uninstall();
+	}
 }

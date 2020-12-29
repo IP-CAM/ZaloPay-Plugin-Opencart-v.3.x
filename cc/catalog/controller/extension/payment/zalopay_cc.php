@@ -2,12 +2,10 @@
 require_once __DIR__.'/../../../../system/library/zalopay-sdk/Zalopay.php';
 
 
-class ControllerExtensionPaymentzalopayCc extends Controller {
+class ControllerExtensionPaymentZalopayCc extends Controller {
 	
 	public function index() {
-
         $data['button_confirm'] = $this->language->get('button_confirm');
-        
         $this->load->model('checkout/order');
 		$this->load->model('extension/payment/zalopay_cc');
         try
@@ -18,34 +16,30 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
             $data = [
                 'app_user' => $order['telephone'],
                 'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false),
-                'embed_data' => array('order_id' => $orderId, 'redirecturl' => $this->url->link('extension/payment/zalopay_cc/redirect')),
-                'bank_code' => "CC",
-                'description' => $this->config->get('payment_zalopay_cc_description'),
-                'callback_url' => $this->url->link('extension/payment/zalopay_cc/callback')
+                'embed_data' => array('order_id' => $orderId),
+                'description' => $this->config->get('payment_zalopay_description')
             ];
-
             $order_data = $api->helper->generateOrderData($data);
 
             // Store app_trans_id to db
-            $this->model_extension_payment_zalopay_cc->updateOrderCustomField($orderId, $order_data['app_trans_id']);
-
-            $zalopay_cc_order = $api->helper->createOrder($order_data);
+            $this->model_extension_payment_zalopay_cc->addOrder($order, $order_data['app_trans_id']);
+            $zalopay_order = $api->helper->createOrder($order_data);
             
         }
         catch(\Zalopay\Sdk\Errors\Error $e)
         {
             $this->log->write($e->getMessage());
             $this->session->data['error'] = $e->getMessage();
-            echo "<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create zalopay_cc Order Id.</div>";
+            echo "<div class='alert alert-danger alert-dismissible'> Something went wrong. Unable to create zalopay Order Id.</div>";
             exit;
         }
         if (file_exists(DIR_TEMPLATE.$this->config->get('config_template').'/template/extension/payment/zalopay_cc')) 
         {
-            return $this->load->view($this->config->get('config_template').'/template/extension/payment/zalopay_cc', $zalopay_cc_order);
+            return $this->load->view($this->config->get('config_template').'/template/extension/payment/zalopay_cc', $zalopay_order);
         } 
         else 
         {
-            return $this->load->view('extension/payment/zalopay_cc', $zalopay_cc_order);
+            return $this->load->view('extension/payment/zalopay_cc', $zalopay_order);
         }
 
     }
@@ -53,7 +47,7 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
 	public function confirm() {
         $response = array("return_code" => 1, "return_message" => "ok");
         try{
-            if ($this->session->data['payment_method']['code'] == 'zalopay_cc') {
+            if ($this->session->data['payment_method']['code'] == 'zalopay') {
                 $this->load->model('checkout/order');
                 $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1);
             }
@@ -92,8 +86,14 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
             $response = $api->helper->verifyCallback($requestData);
             if($response["return_code"]){
                 $_data = json_decode($requestData["data"], true);
-                $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($_data['app_trans_id'])));
-                $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+                $orderId = $this->model_extension_payment_zalopay_cc->getZaloPayOrderId($_data['app_trans_id']);
+                if( $orderId > 0 ){
+                    $this->model_checkout_order->addOrderHistory($orderId, 5);
+                }
+                else{
+                    $error = 'Order not found!';
+                    throw new Exception($error);
+                }
             }
             
             $this->response->addHeader('Content-Type: application/json');
@@ -107,26 +107,30 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
         
     }
 
-
     public function redirect() {
         $this->load->model('checkout/order');
 		$this->load->model('extension/payment/zalopay_cc');
         $api = $this->getApiIntance();
         try{
             $requestData = $this->request->request;
-            $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($requestData['apptransid'])));
             if(isset($requestData["status"]) && $requestData["status"] == 1){
+                $orderId = $this->model_extension_payment_zalopay_cc->getZaloPayOrderId($requestData['apptransid']);
                 // Checksum
                 $isValid = $api->helper->verifyRedirect($requestData);
                 if ($isValid){
                     $queryRes = $api->helper->getOrderStatus($requestData['apptransid']);
                     if($queryRes['return_code'] == 1){
-                        $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
-                        $this->response->redirect($this->url->link('checkout/success', '', true));
+                        if( $orderId > 0){
+                            $this->model_checkout_order->addOrderHistory($orderId, 5);
+                            $this->response->redirect($this->url->link('checkout/success', '', true));
+                        }
+                        else{
+                            $error = 'Order not found!';
+                            throw new Exception($error);
+                        }
                     }
                 }
             }
-            $this->model_checkout_order->addOrderHistory($order['order_id'], 10);
             $this->response->redirect($this->url->link('checkout/failure', '', true));
         }
         catch(Exception $e) {
@@ -141,14 +145,33 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
         $response = Array("return_code" => 1, "return_message" => "ok");
         
         $pendingOrderList = $this->model_extension_payment_zalopay_cc->getPendingOrderList();
-        foreach ( $pendingOrderList as $pendingOrder ) {
-            $queryRes = $api->helper->getOrderStatus($pendingOrder['custom_field']);
-            if($queryRes['return_code'] == 1){
-                $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 5);
+        try{
+            foreach ( $pendingOrderList as $pendingOrder ) {
+                $appTransId = $api->helper->getAppTransIdByOrderId($pendingOrder['order_id']);
+                $queryRes = $api->helper->getOrderStatus($appTransId);
+                if($queryRes['return_code'] == 1){
+                    if( isset($order['order_id'])){
+                        $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 5);
+                    }
+                    else{
+                        $error = 'Order not found!';
+                        throw new Exception($error);
+                    }
+                }
+                if($queryRes['return_code'] == 2){
+                    if( isset($order['order_id'])){
+                        $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 10);
+                    }
+                    else{
+                        $error = 'Order not found!';
+                        throw new Exception($error);
+                    }
+                }
             }
-            if($queryRes['return_code'] == 2){
-                $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 10);
-            }
+        }
+        catch (Exception $e){
+            $response["return_code"] = 2;
+            $response["return_message"] = $e->getMessage();
         }
         $response['total_order'] = count($pendingOrderList);
 		$this->response->addHeader('Content-Type: application/json');
@@ -157,6 +180,6 @@ class ControllerExtensionPaymentzalopayCc extends Controller {
 
     protected function getApiIntance()
     {
-        return new Zalopay\Sdk\Api($this->config->get("payment_zalopay_cc_app_id"), $this->config->get('payment_zalopay_cc_key1'), $this->config->get('payment_zalopay_cc_key2'), $this->config->get('payment_zalopay_cc_environment'));
+        return new Zalopay\Sdk\Api($this->config->get("payment_zalopay_app_id"), $this->config->get('payment_zalopay_key1'), $this->config->get('payment_zalopay_key2', $this->config->get('payment_zalopay_environment')));
     }
 }

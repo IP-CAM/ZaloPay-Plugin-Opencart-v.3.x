@@ -189,4 +189,15 @@ class ControllerExtensionPaymentZalopayAtm extends Controller
             return false;
         }
     }
+
+
+	public function install() {
+        $this->load->model('extension/payment/zalopay_atm');
+		$this->model_extension_payment_zalopay_atm->install();
+	}
+
+	public function uninstall() {
+        $this->load->model('extension/payment/zalopay_atm');
+		$this->model_extension_payment_zalopay_atm->uninstall();
+	}
 }

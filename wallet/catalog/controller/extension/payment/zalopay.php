@@ -22,10 +22,7 @@ class ControllerExtensionPaymentZalopay extends Controller {
             $order_data = $api->helper->generateOrderData($data);
 
             // Store app_trans_id to db
-            $order["payment_custom_field"] = array($order_data["app_trans_id"]);
-            $this->session->data['payment_address']['custom_field'] = array($order_data["app_trans_id"]);
-            $this->model_extension_payment_zalopay->updateOrderCustomField($orderId, $order_data['app_trans_id']);
-
+            $this->model_extension_payment_zalopay->addOrder($order, $order_data['app_trans_id']);
             $zalopay_order = $api->helper->createOrder($order_data);
             
         }
@@ -89,9 +86,9 @@ class ControllerExtensionPaymentZalopay extends Controller {
             $response = $api->helper->verifyCallback($requestData);
             if($response["return_code"]){
                 $_data = json_decode($requestData["data"], true);
-                $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($_data['app_trans_id'])));
-                if( isset($order['order_id'])){
-                    $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+                $orderId = $this->model_extension_payment_zalopay->getZaloPayOrderId($_data['app_trans_id']);
+                if( $orderId > 0 ){
+                    $this->model_checkout_order->addOrderHistory($orderId, 5);
                 }
                 else{
                     $error = 'Order not found!';
@@ -117,14 +114,14 @@ class ControllerExtensionPaymentZalopay extends Controller {
         try{
             $requestData = $this->request->request;
             if(isset($requestData["status"]) && $requestData["status"] == 1){
-                $order = $this->model_extension_payment_zalopay->getOrderByCustomField(json_encode(array($requestData['apptransid'])));
+                $orderId = $this->model_extension_payment_zalopay->getZaloPayOrderId($requestData['apptransid']);
                 // Checksum
                 $isValid = $api->helper->verifyRedirect($requestData);
                 if ($isValid){
                     $queryRes = $api->helper->getOrderStatus($requestData['apptransid']);
                     if($queryRes['return_code'] == 1){
-                        if( isset($order['order_id'])){
-                            $this->model_checkout_order->addOrderHistory($order['order_id'], 5);
+                        if( $orderId > 0){
+                            $this->model_checkout_order->addOrderHistory($orderId, 5);
                             $this->response->redirect($this->url->link('checkout/success', '', true));
                         }
                         else{
@@ -150,7 +147,8 @@ class ControllerExtensionPaymentZalopay extends Controller {
         $pendingOrderList = $this->model_extension_payment_zalopay->getPendingOrderList();
         try{
             foreach ( $pendingOrderList as $pendingOrder ) {
-                $queryRes = $api->helper->getOrderStatus($pendingOrder['custom_field']);
+                $appTransId = $api->helper->getAppTransIdByOrderId($pendingOrder['order_id']);
+                $queryRes = $api->helper->getOrderStatus($appTransId);
                 if($queryRes['return_code'] == 1){
                     if( isset($order['order_id'])){
                         $this->model_checkout_order->addOrderHistory($pendingOrder['order_id'], 5);
