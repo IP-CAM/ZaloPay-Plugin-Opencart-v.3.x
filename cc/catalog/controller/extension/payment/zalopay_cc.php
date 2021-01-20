@@ -16,8 +16,10 @@ class ControllerExtensionPaymentZalopayCc extends Controller {
             $data = [
                 'app_user' => $order['telephone'],
                 'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false),
-                'embed_data' => array('order_id' => $orderId),
-                'description' => $this->config->get('payment_zalopay_description')
+                'embed_data' => array('order_id' => $orderId, 'redirecturl' => $this->url->link('extension/payment/zalopay_cc/redirect')),
+                'description' => $this->config->get('payment_zalopay_description'),	
+                'callback_url' => $this->url->link('extension/payment/zalopay_cc/callback'),
+                'bank_code' => 'CC'
             ];
             $order_data = $api->helper->generateOrderData($data);
 
@@ -47,7 +49,7 @@ class ControllerExtensionPaymentZalopayCc extends Controller {
 	public function confirm() {
         $response = array("return_code" => 1, "return_message" => "ok");
         try{
-            if ($this->session->data['payment_method']['code'] == 'zalopay') {
+            if ($this->session->data['payment_method']['code'] == 'zalopay_cc') {
                 $this->load->model('checkout/order');
                 $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1);
             }

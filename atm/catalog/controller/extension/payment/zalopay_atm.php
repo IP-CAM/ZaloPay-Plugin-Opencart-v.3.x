@@ -16,7 +16,9 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
             $data = [
                 'app_user' => $order['telephone'],
                 'amount' => $this->currency->format($order['total'], $order['currency_code'], $order['currency_value'], false),
-                'embed_data' => array('order_id' => $orderId),
+                'embed_data' => array('order_id' => $orderId, "bankgroup" => "ATM", 'redirecturl' => $this->url->link('extension/payment/zalopay_cc/redirect')),
+                'bank_code' => '',
+                'callback_url' => $this->url->link('extension/payment/zalopay_atm/callback'),
                 'description' => $this->config->get('payment_zalopay_description')
             ];
             $order_data = $api->helper->generateOrderData($data);
@@ -47,7 +49,7 @@ class ControllerExtensionPaymentZalopayAtm extends Controller {
 	public function confirm() {
         $response = array("return_code" => 1, "return_message" => "ok");
         try{
-            if ($this->session->data['payment_method']['code'] == 'zalopay') {
+            if ($this->session->data['payment_method']['code'] == 'zalopay_atm') {
                 $this->load->model('checkout/order');
                 $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], 1);
             }

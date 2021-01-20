@@ -1,6 +1,6 @@
 {
   "api": {
-    "sandbox": "https://sb-openapi.Zalopay.vn/v2/",
-    "production": "https://openapi.zalopay.vn/v2/"
+    "sandbox": "https://sb-openapi.zalopay.vn/v2",
+    "production": "https://openapi.zalopay.vn/v2"
   }
 }

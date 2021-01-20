@@ -120,7 +120,7 @@ class Helper
 			"app_trans_id" => $app_trans_id
 		];
 		$params["mac"] = Mac::getOrderStatus($params);
-		return Http::postForm(Config::get()['api'][Config::get()['env']] . "query", $params);
+		return Http::postForm(Config::get()['api'][Config::get()['env']] . "/query", $params);
 	}
 }
 
