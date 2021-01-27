@@ -4,7 +4,7 @@ namespace Zalopay\Sdk;
 
 class Api {
     
-    public function __construct($appId, $key1, $key2, $env = "sandbox", $version = "2")
+    public function __construct($appId, $key1, $key2, $env)
     {
         Config::setConfig("app_id", $appId);
         Config::setConfig("key1", $key1);

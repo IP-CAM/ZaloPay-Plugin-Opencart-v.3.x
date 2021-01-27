@@ -180,6 +180,11 @@ class ControllerExtensionPaymentZalopay extends Controller {
 
     protected function getApiIntance()
     {
-        return new Zalopay\Sdk\Api($this->config->get("payment_zalopay_app_id"), $this->config->get('payment_zalopay_key1'), $this->config->get('payment_zalopay_key2', $this->config->get('payment_zalopay_environment')));
+        return new Zalopay\Sdk\Api(
+            $this->config->get("payment_zalopay_app_id"), 
+            $this->config->get('payment_zalopay_key1'), 
+            $this->config->get('payment_zalopay_key2'), 
+            $this->config->get('payment_zalopay_environment')
+        );
     }
 }
